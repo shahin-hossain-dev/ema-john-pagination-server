@@ -8,7 +8,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kdwhpbt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -37,6 +37,19 @@ async function run() {
         .limit(size) //collection থেকে কত গুলো data নিয়ে শো করবে।
         .toArray();
 
+      res.send(result);
+    });
+
+    app.post("/productByIdes", async (req, res) => {
+      const ids = req.body;
+      const productIds = ids.map((id) => new ObjectId(id)); //id গুলোকে map করে new ObjectId(id) রুপান্তরা করা হয়েছে।
+
+      const query = {
+        _id: {
+          $in: productIds, //$in operator ids array কে query হিসাবে নিয়েছে mongodb
+        },
+      };
+      const result = await productCollection.find(query).toArray();
       res.send(result);
     });
 
